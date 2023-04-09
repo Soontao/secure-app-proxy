@@ -15,3 +15,5 @@
 # vendor/
 
 secure-app-proxy
+.env
+__debug_bin
