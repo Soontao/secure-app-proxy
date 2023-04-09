@@ -7,7 +7,8 @@
 > by system environment only
 
 - [x] UPSTREAM
-- [ ] APPEND_HEADERS
+- [ ] APPEND_FORWARD_HEADERS
+- [ ] APPEND_CUSTOM_HEADERS
 - [x] JWT_SECRET
   - [ ] JWT_CLAIM_USER
   - [ ] JWT_CLAIM_PERMISSION
