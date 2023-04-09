@@ -19,6 +19,9 @@ func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		rp.ServeHTTP(w, r)
 	})
+	rp.Rewrite = func(pr *httputil.ProxyRequest) {
+		pr.Out.Host = u.Host
+	}
 	fmt.Println("Listening on port: 8080")
 	http.ListenAndServe(":8080", nil)
 }
