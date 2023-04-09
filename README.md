@@ -1,1 +1,1 @@
-# secure-app-proxy
+# Secure App Proxy
