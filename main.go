@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -22,6 +21,6 @@ func main() {
 	rp.Rewrite = func(pr *httputil.ProxyRequest) {
 		pr.Out.Host = u.Host
 	}
-	fmt.Println("Listening on port: 8080")
+	log.Println("Listening on port: 8080")
 	http.ListenAndServe(":8080", nil)
 }
