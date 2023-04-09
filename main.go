@@ -13,19 +13,28 @@ import (
 )
 
 func main() {
-	u, err := url.Parse(os.Getenv("UPSTREAM"))
-	jwtSecret := os.Getenv("JWT_SECRET")
+	upstream := os.Getenv("UPSTREAM")
+	if len(upstream) == 0 {
+		log.Fatal("must provide upstream!")
+	}
+	u, err := url.Parse(upstream)
 	if err != nil {
 		log.Fatalf("parse upstream url failed %s", err)
 	}
-	log.Printf("upstream endpoint %s", u)
-	rp := &httputil.ReverseProxy{
-		Rewrite: func(pr *httputil.ProxyRequest) {
-			pr.SetURL(u)
-		},
+	log.Printf("upstream endpoint %s", upstream)
+
+	jwtSecret := os.Getenv("JWT_SECRET")
+	enableJwtVerification := len(jwtSecret) > 0
+	if enableJwtVerification {
+		log.Println("JWT verification enabled")
 	}
+
+	rp := &httputil.ReverseProxy{
+		Rewrite: func(pr *httputil.ProxyRequest) { pr.SetURL(u) },
+	}
+
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		if len(jwtSecret) > 0 {
+		if enableJwtVerification {
 			tokenText := strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")
 			_, err := jwt.Parse(tokenText, func(t *jwt.Token) (interface{}, error) {
 				return []byte(jwtSecret), nil
@@ -40,8 +49,10 @@ func main() {
 				return
 			}
 		}
+
 		rp.ServeHTTP(w, r)
 	})
+
 	log.Println("Listening on port: 8080")
 	http.ListenAndServe(":8080", nil)
 }
