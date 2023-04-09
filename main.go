@@ -14,6 +14,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("parse upstream url failed %s", err)
 	}
+	log.Printf("upstream endpoint %s", u)
 	rp := httputil.NewSingleHostReverseProxy(u)
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		rp.ServeHTTP(w, r)
