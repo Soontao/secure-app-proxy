@@ -77,6 +77,20 @@ func createProxyHandler() http.Handler {
 			if globalSubject.Get() != nil {
 				pr.Out.Header.Set("X-Auth-Subject", globalSubject.Get().(string))
 			}
+			if os.Getenv("APPEND_FORWARD_HEADERS") != "false" {
+				pr.SetXForwarded()
+			}
+			for _, v := range os.Environ() {
+				parts := strings.SplitN(v, "=", 2)
+				key := parts[0]
+				value := parts[1]
+				if strings.HasPrefix(key, "DELETE_SOURCE_HEADERS") {
+					pr.Out.Header.Del(strings.TrimPrefix(key, "DELETE_SOURCE_HEADERS_"))
+				}
+				if strings.HasPrefix(key, "APPEND_CUSTOM_HEADERS") {
+					pr.Out.Header.Set(strings.TrimPrefix(key, "APPEND_CUSTOM_HEADERS_"), value)
+				}
+			}
 		},
 	}
 	handler := func(w http.ResponseWriter, r *http.Request) {
