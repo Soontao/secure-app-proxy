@@ -57,7 +57,22 @@ func rateMiddleware(next http.Handler) http.Handler {
 	log.Println("rate limiter enabled", rateLimit)
 	rate, _ := limiter.NewRateFromFormatted(rateLimit)
 	store := memory.NewStore()
-	middleware := limiterMiddlewareHandler.NewMiddleware(limiter.New(store, rate, limiter.WithTrustForwardHeader(true)))
+	middleware := limiterMiddlewareHandler.NewMiddleware(
+		limiter.New(
+			store,
+			rate,
+			limiter.WithTrustForwardHeader(true),
+		),
+		limiterMiddlewareHandler.WithLimitReachedHandler(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusTooManyRequests)
+			json.NewEncoder(w).Encode(&ErrorMessage{
+				Message: "Rate Limit Reached",
+				Code:    "RATE_LIMIT_REACH",
+				Error:   "Limit exceeded",
+			})
+		}),
+	)
 	return middleware.Handler(next)
 }
 
