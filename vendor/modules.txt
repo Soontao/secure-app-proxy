@@ -16,7 +16,7 @@ github.com/pmezard/go-difflib/difflib
 # github.com/samber/lo v1.38.1
 ## explicit; go 1.18
 github.com/samber/lo
-# github.com/stretchr/testify v1.8.1
+# github.com/stretchr/testify v1.8.2
 ## explicit; go 1.13
 github.com/stretchr/testify/assert
 # github.com/ulule/limiter/v3 v3.11.1
