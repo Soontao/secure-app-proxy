@@ -147,8 +147,8 @@ func main() {
 	for _, middleware := range lo.Reverse(middlewares) {
 		if middleware.Enabled() {
 			log.Printf("middleware %s enabled", middleware.Name())
+			handler = middleware.Handler(handler)
 		}
-		handler = middleware.Handler(handler)
 	}
 
 	http.ListenAndServe(":8080", handler)
