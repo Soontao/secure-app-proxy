@@ -2,6 +2,8 @@
 
 > secure your app, with most simplest setup
 
+[![Go Build](https://github.com/Soontao/secure-app-proxy/actions/workflows/go.yml/badge.svg)](https://github.com/Soontao/secure-app-proxy/actions/workflows/go.yml)
+
 ## Configuration
 
 > by system environment only
