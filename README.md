@@ -7,11 +7,16 @@
 > by system environment only
 
 - [x] UPSTREAM
-- [x] APPEND_FORWARD_HEADERS - `APPEND_FORWARD_HEADERS=false`
-- [x] APPEND_CUSTOM_HEADERS - `APPEND_CUSTOM_HEADERS_X-A=cccc`
-- [x] DELETE_SOURCE_HEADERS - `DELETE_SOURCE_HEADERS_authorization=true`
+- [x] header modifications
+  - [x] modify out request headers
+    - [x] APPEND_FORWARD_HEADERS - `APPEND_FORWARD_HEADERS=false`
+    - [x] APPEND_REQ_HEADERS - `APPEND_REQ_HEADERS_X-A=cccc`
+    - [x] DELETE_REQ_HEADERS - `DELETE_REQ_HEADERS_authorization=true`
+  - [x] modify out response headers
+    - [x] APPEND_RES_HEADERS
+    - [x] DELETE_RES_HEADERS
 - [x] JWT_SECRET
-  - [x] forward `X-Auth-Subject` to upstream
+  - [x] forward `X-User-Subject` to upstream
 - [x] RATE_LIMIT - [document](https://github.com/ulule/limiter)
 - [ ] FORM_LOGIN
   - [ ] STORAGE
