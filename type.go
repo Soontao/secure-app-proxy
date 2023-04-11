@@ -1,7 +1,6 @@
 package main
 
 type ErrorMessage struct {
-	Error   string
-	Code    string
-	Message string
+	Code         string
+	ErrorMessage string
 }

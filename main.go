@@ -16,7 +16,17 @@ import (
 	memory "github.com/ulule/limiter/v3/drivers/store/memory"
 )
 
-var globalSubject = routine.NewInheritableThreadLocal()
+// threadLocalSubject store the current request subject information - user
+var threadLocalSubject = routine.NewInheritableThreadLocal()
+
+func flushHttpResponseError(w http.ResponseWriter, errMessage string, code string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusUnauthorized)
+	json.NewEncoder(w).Encode(&ErrorMessage{
+		ErrorMessage: errMessage,
+		Code:         code,
+	})
+}
 
 func jwtMiddleware(next http.Handler) http.Handler {
 	jwtSecret := os.Getenv("JWT_SECRET")
@@ -31,18 +41,16 @@ func jwtMiddleware(next http.Handler) http.Handler {
 			return []byte(jwtSecret), nil
 		})
 		if err != nil {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusUnauthorized)
-			json.NewEncoder(w).Encode(&ErrorMessage{
-				Message: "JWT validate failed",
-				Code:    "JWT_VALIDATE_FAILED",
-				Error:   err.Error(),
-			})
+			flushHttpResponseError(
+				w,
+				err.Error(),
+				"JWT_VALIDATE_FAILED",
+			)
 			return
 		}
 		sub, _ := token.Claims.GetSubject()
 		if len(sub) > 0 {
-			globalSubject.Set(sub)
+			threadLocalSubject.Set(sub)
 		}
 		next.ServeHTTP(w, r)
 	})
@@ -64,16 +72,71 @@ func rateMiddleware(next http.Handler) http.Handler {
 			limiter.WithTrustForwardHeader(true),
 		),
 		limiterMiddlewareHandler.WithLimitReachedHandler(func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusTooManyRequests)
-			json.NewEncoder(w).Encode(&ErrorMessage{
-				Message: "Rate Limit Reached",
-				Code:    "RATE_LIMIT_REACH",
-				Error:   "Limit exceeded",
-			})
+			flushHttpResponseError(
+				w,
+				"Rate Limit Reached",
+				"RATE_LIMIT_REACH",
+			)
 		}),
 	)
 	return middleware.Handler(next)
+}
+
+func createRewriter(u *url.URL) func(pr *httputil.ProxyRequest) {
+	rewriteSteps := []func(pr *httputil.ProxyRequest){}
+
+	rewriteSteps = append(rewriteSteps, func(pr *httputil.ProxyRequest) {
+		pr.SetURL(u)
+	})
+	// TODO: only jwt/auth enabled ?
+	rewriteSteps = append(rewriteSteps, func(pr *httputil.ProxyRequest) {
+		if threadLocalSubject.Get() != nil {
+			pr.Out.Header.Set("X-Auth-Subject", threadLocalSubject.Get().(string))
+		}
+	})
+	if os.Getenv("APPEND_FORWARD_HEADERS") != "false" {
+		rewriteSteps = append(rewriteSteps, func(pr *httputil.ProxyRequest) {
+			pr.SetXForwarded()
+		})
+	}
+
+	// >> prepare header rewrite
+	delReqHeaders := []string{}
+	setReqHeaders := map[string]string{}
+
+	for _, v := range os.Environ() {
+		parts := strings.SplitN(v, "=", 2)
+		key := parts[0]
+		value := parts[1]
+		if strings.HasPrefix(key, "DELETE_SOURCE_HEADERS") {
+			delReqHeaders = append(delReqHeaders, strings.TrimPrefix(key, "DELETE_SOURCE_HEADERS_"))
+		}
+		if strings.HasPrefix(key, "APPEND_CUSTOM_HEADERS") {
+			setReqHeaders[strings.TrimPrefix(key, "APPEND_CUSTOM_HEADERS_")] = value
+		}
+	}
+
+	if len(delReqHeaders) > 0 {
+		rewriteSteps = append(rewriteSteps, func(pr *httputil.ProxyRequest) {
+			for _, delReqHeader := range delReqHeaders {
+				pr.Out.Header.Del(delReqHeader)
+			}
+		})
+	}
+
+	if len(setReqHeaders) > 0 {
+		rewriteSteps = append(rewriteSteps, func(pr *httputil.ProxyRequest) {
+			for setReqHeader, value := range setReqHeaders {
+				pr.Out.Header.Set(setReqHeader, value)
+			}
+		})
+	}
+
+	return func(pr *httputil.ProxyRequest) {
+		for _, step := range rewriteSteps {
+			step(pr)
+		}
+	}
 }
 
 func createProxyHandler() http.Handler {
@@ -87,31 +150,9 @@ func createProxyHandler() http.Handler {
 	}
 	log.Printf("upstream endpoint %s", upstream)
 	rp := &httputil.ReverseProxy{
-		Rewrite: func(pr *httputil.ProxyRequest) {
-			pr.SetURL(u)
-			if globalSubject.Get() != nil {
-				pr.Out.Header.Set("X-Auth-Subject", globalSubject.Get().(string))
-			}
-			if os.Getenv("APPEND_FORWARD_HEADERS") != "false" {
-				pr.SetXForwarded()
-			}
-			for _, v := range os.Environ() {
-				parts := strings.SplitN(v, "=", 2)
-				key := parts[0]
-				value := parts[1]
-				if strings.HasPrefix(key, "DELETE_SOURCE_HEADERS") {
-					pr.Out.Header.Del(strings.TrimPrefix(key, "DELETE_SOURCE_HEADERS_"))
-				}
-				if strings.HasPrefix(key, "APPEND_CUSTOM_HEADERS") {
-					pr.Out.Header.Set(strings.TrimPrefix(key, "APPEND_CUSTOM_HEADERS_"), value)
-				}
-			}
-		},
+		Rewrite: createRewriter(u),
 	}
-	handler := func(w http.ResponseWriter, r *http.Request) {
-		rp.ServeHTTP(w, r)
-	}
-	return http.HandlerFunc(handler)
+	return http.HandlerFunc(rp.ServeHTTP)
 }
 
 func main() {
