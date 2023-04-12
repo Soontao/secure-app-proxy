@@ -3,7 +3,6 @@ package main
 import (
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -23,7 +22,7 @@ func TestNewJwtMiddleware_ValidToken(t *testing.T) {
 	}
 
 	// Set the JWT_SECRET environment variable to the UUID secret
-	os.Setenv("JWT_SECRET", secret)
+	t.Setenv("JWT_SECRET", secret)
 
 	// Create a new JwtMiddleware
 	middleware := NewJwtMiddleware()

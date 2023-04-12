@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"reflect"
 	"testing"
 
@@ -12,7 +11,7 @@ import (
 )
 
 func TestRateLimiterMiddleware(t *testing.T) {
-	os.Setenv("RATE_LIMIT", "10-M")
+	t.Setenv("RATE_LIMIT", "10-M")
 
 	// Create a new RateLimiterMiddleware instance
 	rlm := NewRateLimiterMiddleware()
@@ -48,7 +47,7 @@ func TestRateLimiterMiddleware(t *testing.T) {
 
 func TestRateLimiterMiddleware_Handler_RateLimitReached(t *testing.T) {
 	// Create a new RateLimiterMiddleware instance with a mock store and rate limit of 1 request per second
-	os.Setenv("RATE_LIMIT", "1-S")
+	t.Setenv("RATE_LIMIT", "1-S")
 	middleware := NewRateLimiterMiddleware()
 
 	// Create a new HTTP request with a mock handler

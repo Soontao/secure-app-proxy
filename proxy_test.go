@@ -65,7 +65,7 @@ func TestCreateRewriter(t *testing.T) {
 func TestCreateModifier(t *testing.T) {
 
 	// Test case 2: DELETE_RES_HEADERS environment variable set
-	os.Setenv("DELETE_RES_HEADERS_FOO", "true")
+	t.Setenv("DELETE_RES_HEADERS_FOO", "true")
 	modifier := createModifier()
 	resp := &http.Response{Header: http.Header{"Foo": []string{"bar"}}}
 	err := modifier(resp)
@@ -77,7 +77,7 @@ func TestCreateModifier(t *testing.T) {
 	}
 
 	// Test case 3: APPEND_RES_HEADERS environment variable set
-	os.Setenv("APPEND_RES_HEADERS_FOO", "bar")
+	t.Setenv("APPEND_RES_HEADERS_FOO", "bar")
 	modifier = createModifier()
 	resp = &http.Response{Header: http.Header{}}
 	err = modifier(resp)
@@ -89,9 +89,9 @@ func TestCreateModifier(t *testing.T) {
 	}
 
 	// Test case 4: Both DELETE_RES_HEADERS and APPEND_RES_HEADERS environment variables set
-	os.Unsetenv("APPEND_RES_HEADERS_FOO")
-	os.Setenv("DELETE_RES_HEADERS_FOO", "true")
-	os.Setenv("APPEND_RES_HEADERS_BAR", "baz")
+	t.Setenv("APPEND_RES_HEADERS_FOO", "")
+	t.Setenv("DELETE_RES_HEADERS_FOO", "true")
+	t.Setenv("APPEND_RES_HEADERS_BAR", "baz")
 	modifier = createModifier()
 	resp = &http.Response{Header: http.Header{"Foo": []string{"bar"}}}
 	err = modifier(resp)
