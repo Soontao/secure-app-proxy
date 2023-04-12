@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -51,5 +52,38 @@ func TestNewJwtMiddleware_ValidToken(t *testing.T) {
 	// Check that the response body is empty
 	if body := rr.Body.String(); body != "" {
 		t.Errorf("Handler returned non-empty body: %v", body)
+	}
+}
+
+func TestJwtMiddleware_Handler_InvalidToken(t *testing.T) {
+	// Create a mock HTTP handler
+	mockHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Hello, world!"))
+	})
+
+	// Create an instance of the JwtMiddleware struct
+	jwtMiddleware := NewJwtMiddleware()
+
+	// Call the Handler method with the mock handler
+	handler := jwtMiddleware.Handler(mockHandler)
+
+	// Create a request with an invalid JWT token
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req.Header.Set("Authorization", "Bearer invalid-token")
+
+	// Create a response recorder to capture the response
+	rr := httptest.NewRecorder()
+
+	// Make the request to the handler
+	handler.ServeHTTP(rr, req)
+
+	// Check that the response has a 401 status code and a message indicating that the JWT validation failed
+	if rr.Code != http.StatusUnauthorized {
+		t.Errorf("expected status %d but got %d", http.StatusUnauthorized, rr.Code)
+	}
+	expectedBody := `{"Code":"JWT_VALIDATE_FAILED","ErrorMessage":"token is malformed: token contains an invalid number of segments"}`
+	if strings.TrimSpace(rr.Body.String()) != strings.TrimSpace(expectedBody) {
+		t.Errorf("expected body %q but got %q", expectedBody, rr.Body.String())
 	}
 }

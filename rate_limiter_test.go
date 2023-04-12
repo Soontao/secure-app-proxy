@@ -1,10 +1,9 @@
 package main
 
 import (
-	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -69,21 +68,9 @@ func TestRateLimiterMiddleware_Handler_RateLimitReached(t *testing.T) {
 	}
 
 	// Check if the response body is correct
-	expectedBody := `{"ErrorMessage":"Rate Limit Reached","Code":"RATE_LIMIT_REACH"}`
-	if !jsonEqual(rr.Body.Bytes(), []byte(expectedBody)) {
+	expectedBody := `{"Code":"RATE_LIMIT_REACH","ErrorMessage":"Rate Limit Reached"}`
+	if strings.TrimSpace(rr.Body.String()) != expectedBody {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			rr.Body.String(), expectedBody)
 	}
-}
-
-// jsonEqual checks if two JSON byte arrays are equal
-func jsonEqual(a, b []byte) bool {
-	var j, j2 interface{}
-	if err := json.Unmarshal(a, &j); err != nil {
-		return false
-	}
-	if err := json.Unmarshal(b, &j2); err != nil {
-		return false
-	}
-	return reflect.DeepEqual(j, j2)
 }
