@@ -19,6 +19,11 @@ type RateLimiterMiddleware struct {
 func NewRateLimiterMiddleware() *RateLimiterMiddleware {
 	rateLimit := os.Getenv("RATE_LIMIT")
 	enabled := len(rateLimit) > 0
+	if !enabled {
+		return &RateLimiterMiddleware{
+			enabled: enabled,
+		}
+	}
 	rate, error := limiter.NewRateFromFormatted(rateLimit)
 	if error != nil {
 		log.Fatalf("%s is not a valid rate limit expression", rateLimit)

@@ -3,6 +3,7 @@
 > secure your app, with most simplest setup
 
 [![Go Build](https://github.com/Soontao/secure-app-proxy/actions/workflows/go.yml/badge.svg)](https://github.com/Soontao/secure-app-proxy/actions/workflows/go.yml)
+[![codecov](https://codecov.io/github/Soontao/secure-app-proxy/branch/main/graph/badge.svg?token=F24Lf6HEhp)](https://codecov.io/github/Soontao/secure-app-proxy)
 
 ## Configuration
 

@@ -1,9 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -42,4 +44,47 @@ func TestRateLimiterMiddleware(t *testing.T) {
 	assert.Equal(t, "10", rr.Header().Get("X-RateLimit-Limit"))
 	assert.Equal(t, "9", rr.Header().Get("X-RateLimit-Remaining"))
 	assert.NotEmpty(t, rr.Header().Get("X-RateLimit-Reset"))
+}
+
+func TestRateLimiterMiddleware_Handler_RateLimitReached(t *testing.T) {
+	// Create a new RateLimiterMiddleware instance with a mock store and rate limit of 1 request per second
+	os.Setenv("RATE_LIMIT", "1-S")
+	middleware := NewRateLimiterMiddleware()
+
+	// Create a new HTTP request with a mock handler
+	req, err := http.NewRequest("GET", "/test", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+
+	// Call the Handler function twice to exceed the rate limit
+	middleware.Handler(handler).ServeHTTP(httptest.NewRecorder(), req)
+	rr := httptest.NewRecorder()
+	middleware.Handler(handler).ServeHTTP(rr, req)
+
+	// Check if the response status code is correct
+	if status := rr.Code; status != http.StatusUnauthorized {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusUnauthorized)
+	}
+
+	// Check if the response body is correct
+	expectedBody := `{"ErrorMessage":"Rate Limit Reached","Code":"RATE_LIMIT_REACH"}`
+	if !jsonEqual(rr.Body.Bytes(), []byte(expectedBody)) {
+		t.Errorf("handler returned unexpected body: got %v want %v",
+			rr.Body.String(), expectedBody)
+	}
+}
+
+// jsonEqual checks if two JSON byte arrays are equal
+func jsonEqual(a, b []byte) bool {
+	var j, j2 interface{}
+	if err := json.Unmarshal(a, &j); err != nil {
+		return false
+	}
+	if err := json.Unmarshal(b, &j2); err != nil {
+		return false
+	}
+	return reflect.DeepEqual(j, j2)
 }

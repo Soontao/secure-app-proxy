@@ -3,16 +3,24 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/samber/lo"
 )
 
 func main() {
+
 	middlewares := []Middleware{
 		NewJwtMiddleware(),
 		NewRateLimiterMiddleware(),
 	}
-	log.Println("Listening on port: 8080")
+
+	addr := os.Getenv("LISTEN_ADDR")
+
+	if len(addr) == 0 {
+		addr = ":8080"
+	}
+	log.Println("Listening on", addr)
 
 	// major handler
 	handler := createProxyHandler()
@@ -25,5 +33,5 @@ func main() {
 		}
 	}
 
-	http.ListenAndServe(":8080", handler)
+	http.ListenAndServe(addr, handler)
 }
