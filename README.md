@@ -23,7 +23,9 @@
 - [x] RATE_LIMIT - [document](https://github.com/ulule/limiter)
 - [ ] FORM_LOGIN
   - [ ] STORAGE
-- [ ] OIDC_LOGIN
-  - [ ] ODIC_ISSUER
-  - [ ] ODIC_CLIENT_ID
-  - [ ] ODIC_CLIENT_SECRET
+- [x] odic integration
+  - [x] ODIC_ISSUER
+  - [x] ODIC_CLIENT_ID
+  - [x] ODIC_CLIENT_SECRET
+  - [x] ODIC_CALLBACK_URL
+  - [x] ODIC_SESSION_SECRET

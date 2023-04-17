@@ -11,6 +11,7 @@ import (
 func main() {
 
 	middlewares := []Middleware{
+		NewOdicMiddleware(),
 		NewJwtMiddleware(),
 		NewRateLimiterMiddleware(),
 	}
@@ -20,7 +21,6 @@ func main() {
 	if len(addr) == 0 {
 		addr = ":8080"
 	}
-	log.Println("Listening on", addr)
 
 	// major handler
 	handler := createProxyHandler()
@@ -28,10 +28,12 @@ func main() {
 	// apply middlewares
 	for _, middleware := range lo.Reverse(middlewares) {
 		if middleware.Enabled() {
-			log.Printf("middleware %s enabled", middleware.Name())
+			log.Printf("middleware %s is enabled", middleware.Name())
 			handler = middleware.Handler(handler)
 		}
 	}
+
+	log.Println("Listening on", addr)
 
 	http.ListenAndServe(addr, handler)
 }

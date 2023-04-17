@@ -5,11 +5,15 @@ import (
 	"net/http"
 )
 
-func flushHttpResponseError(w http.ResponseWriter, errMessage string, code string) {
+func flushJsonErrorResponse(w http.ResponseWriter, errMessage string, code string, status int) {
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusUnauthorized)
+	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(&ErrorMessage{
 		ErrorMessage: errMessage,
 		Code:         code,
 	})
+}
+
+func flushHttpResponseError(w http.ResponseWriter, errMessage string, code string) {
+	flushJsonErrorResponse(w, errMessage, code, http.StatusUnauthorized)
 }
