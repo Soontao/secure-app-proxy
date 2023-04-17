@@ -29,3 +29,4 @@
   - [x] ODIC_CLIENT_SECRET
   - [x] ODIC_CALLBACK_URL
   - [x] ODIC_SESSION_SECRET
+  - [ ] logout
