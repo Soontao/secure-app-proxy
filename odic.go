@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"errors"
-	"log"
 	"net/http"
 	"os"
 
@@ -20,26 +19,8 @@ type OidcMiddleware struct {
 }
 
 func NewOdicMiddleware() *OidcMiddleware {
-	provider, err := oidc.NewProvider(
-		context.Background(),
-		os.Getenv("ODIC_ISSUER"),
-	)
-	if err != nil {
-		log.Fatalf("create oidc provider failed %s", err)
-		return nil
-	}
-	conf := &oauth2.Config{
-		ClientID:     os.Getenv("ODIC_CLIENT_ID"),
-		ClientSecret: os.Getenv("ODIC_CLIENT_SECRET"),
-		RedirectURL:  os.Getenv("ODIC_CALLBACK_URL"),
-		Endpoint:     provider.Endpoint(),
-		Scopes:       []string{oidc.ScopeOpenID, "profile"},
-	}
-
 	return &OidcMiddleware{
-		conf:     conf,
-		provider: provider,
-		enabled:  len(os.Getenv("ODIC_CLIENT_ID")) > 0 && len(os.Getenv("ODIC_CLIENT_SECRET")) > 0,
+		enabled: len(os.Getenv("ODIC_CLIENT_ID")) > 0 && len(os.Getenv("ODIC_CLIENT_SECRET")) > 0,
 	}
 }
 
@@ -66,6 +47,17 @@ func (m *OidcMiddleware) Enabled() bool {
 }
 
 func (m *OidcMiddleware) Handler(next http.Handler) http.Handler {
+	m.provider, _ = oidc.NewProvider(
+		context.Background(),
+		os.Getenv("ODIC_ISSUER"),
+	)
+	m.conf = &oauth2.Config{
+		ClientID:     os.Getenv("ODIC_CLIENT_ID"),
+		ClientSecret: os.Getenv("ODIC_CLIENT_SECRET"),
+		RedirectURL:  os.Getenv("ODIC_CALLBACK_URL"),
+		Endpoint:     m.provider.Endpoint(),
+		Scopes:       []string{oidc.ScopeOpenID, "profile"},
+	}
 	store := sessions.NewCookieStore([]byte(os.Getenv("ODIC_SESSION_SECRET")))
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		s, err := store.Get(r, "user")
