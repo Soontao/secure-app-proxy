@@ -5,16 +5,15 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"os"
 	"testing"
 )
 
 func TestCreateRewriter(t *testing.T) {
 	// Set up environment variables
-	os.Setenv("UPSTREAM", "http://example.com")
-	os.Setenv("APPEND_FORWARD_HEADERS", "true")
-	os.Setenv("DELETE_REQ_HEADERS_FOO", "true")
-	os.Setenv("APPEND_REQ_HEADERS_BAR", "baz")
+	t.Setenv("UPSTREAM", "http://example.com")
+	t.Setenv("APPEND_FORWARD_HEADERS", "true")
+	t.Setenv("DELETE_REQ_HEADERS_FOO", "true")
+	t.Setenv("APPEND_REQ_HEADERS_BAR", "baz")
 
 	// Call createRewriter function
 	rewriter := createRewriter()
