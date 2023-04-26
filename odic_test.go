@@ -162,3 +162,58 @@ func TestHandler(t *testing.T) {
 	}
 
 }
+
+func TestOidcMiddleware_handleCallback(t *testing.T) {
+	// create a new OidcMiddleware instance
+	m := NewOdicMiddleware()
+
+	// create a new session
+	s := sessions.NewSession(nil, "user")
+
+	// create a new request
+	req, err := http.NewRequest("GET", "/_/oidc/callback", nil)
+	if err != nil {
+		t.Fatalf("failed to create request: %v", err)
+	}
+
+	// create a new response recorder
+	rr := httptest.NewRecorder()
+
+	// call handleCallback function
+	m.handleCallback(s, req, rr)
+
+	// check if the response status code is 400
+	if rr.Code != http.StatusBadRequest {
+		t.Errorf("expected status code %d, but got %d", http.StatusBadRequest, rr.Code)
+	}
+}
+
+func TestOidcMiddleware_HandleCallback_AuthFailed(t *testing.T) {
+	// Create a new OidcMiddleware instance
+	m := NewOdicMiddleware()
+
+	// Create a new HTTP request with a query parameter that will cause the auth to fail
+	req, err := http.NewRequest("GET", "/_/oidc/callback?code=invalid_code&state=111", nil)
+	if err != nil {
+		t.Fatalf("Failed to create HTTP request: %v", err)
+	}
+
+	// Create a new HTTP response recorder
+	rr := httptest.NewRecorder()
+
+	store := sessions.NewCookieStore()
+
+	session := sessions.NewSession(store, "user")
+	session.Values["oidc_state"] = "111"
+
+	m.conf = &oauth2.Config{}
+	// Call the handleCallback function with a new session and the invalid request
+	m.handleCallback(session, req, rr)
+
+	// Check that the response status code is 401 Unauthorized
+	if rr.Code != http.StatusUnauthorized {
+		t.Errorf("Expected status code %d, but got %d", http.StatusUnauthorized, rr.Code)
+	}
+
+	// Check that the response body contains the expected error message and code
+}
