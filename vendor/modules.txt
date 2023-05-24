@@ -36,13 +36,12 @@ github.com/samber/lo
 # github.com/stretchr/testify v1.8.3
 ## explicit; go 1.20
 github.com/stretchr/testify/assert
-# github.com/ulule/limiter/v3 v3.11.1
+# github.com/ulule/limiter/v3 v3.11.2
 ## explicit; go 1.17
 github.com/ulule/limiter/v3
 github.com/ulule/limiter/v3/drivers/middleware/stdlib
 github.com/ulule/limiter/v3/drivers/store/common
 github.com/ulule/limiter/v3/drivers/store/memory
-github.com/ulule/limiter/v3/internal/bytebuffer
 # golang.org/x/crypto v0.8.0
 ## explicit; go 1.17
 golang.org/x/crypto/pbkdf2
