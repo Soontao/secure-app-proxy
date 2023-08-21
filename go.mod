@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/coreos/go-oidc/v3 v3.6.0
 	github.com/golang-jwt/jwt/v5 v5.0.0
-	github.com/google/uuid v1.3.0
+	github.com/google/uuid v1.3.1
 	github.com/gorilla/sessions v1.2.1
 	github.com/samber/lo v1.38.1
 	github.com/stretchr/testify v1.8.4
