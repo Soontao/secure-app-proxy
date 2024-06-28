@@ -20,7 +20,9 @@ var (
 	SpecialCharset          = []rune("!@#$%^&*()_+-=[]{}|;':\",./<>?")
 	AllCharset              = append(AlphanumericCharset, SpecialCharset...)
 
-	splitWordReg         = regexp.MustCompile(`([a-z])([A-Z0-9])|([a-zA-Z])([0-9])|([0-9])([a-zA-Z])|([A-Z])([A-Z])([a-z])`)
+	// bearer:disable go_lang_permissive_regex_validation
+	splitWordReg = regexp.MustCompile(`([a-z])([A-Z0-9])|([a-zA-Z])([0-9])|([0-9])([a-zA-Z])|([A-Z])([A-Z])([a-z])`)
+	// bearer:disable go_lang_permissive_regex_validation
 	splitNumberLetterReg = regexp.MustCompile(`([0-9])([a-zA-Z])`)
 )
 
@@ -37,6 +39,8 @@ func RandomString(size int, charset []rune) string {
 	b := make([]rune, size)
 	possibleCharactersCount := len(charset)
 	for i := range b {
+		// @TODO: Upgrade to math/rand/v2 as soon as we set the minimum Go version to 1.22.
+		// bearer:disable go_gosec_crypto_weak_random
 		b[i] = charset[rand.Intn(possibleCharactersCount)]
 	}
 	return string(b)
@@ -106,8 +110,8 @@ func RuneLength(str string) int {
 // PascalCase converts string to pascal case.
 func PascalCase(str string) string {
 	items := Words(str)
-	for i, item := range items {
-		items[i] = Capitalize(item)
+	for i := range items {
+		items[i] = Capitalize(items[i])
 	}
 	return strings.Join(items, "")
 }
@@ -128,8 +132,8 @@ func CamelCase(str string) string {
 // KebabCase converts string to kebab case.
 func KebabCase(str string) string {
 	items := Words(str)
-	for i, item := range items {
-		items[i] = strings.ToLower(item)
+	for i := range items {
+		items[i] = strings.ToLower(items[i])
 	}
 	return strings.Join(items, "-")
 }
@@ -137,8 +141,8 @@ func KebabCase(str string) string {
 // SnakeCase converts string to snake case.
 func SnakeCase(str string) string {
 	items := Words(str)
-	for i, item := range items {
-		items[i] = strings.ToLower(item)
+	for i := range items {
+		items[i] = strings.ToLower(items[i])
 	}
 	return strings.Join(items, "_")
 }
