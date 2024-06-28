@@ -122,6 +122,7 @@ Supported helpers for slices:
 Supported helpers for maps:
 
 - [Keys](#keys)
+- [HasKey](#HasKey)
 - [ValueOr](#valueor)
 - [Values](#values)
 - [PickBy](#pickby)
@@ -272,6 +273,7 @@ Concurrency helpers:
 - [Synchronize](#synchronize)
 - [Async](#async)
 - [Transaction](#transaction)
+- [WaitFor](#waitfor)
 
 Error handling:
 
@@ -988,6 +990,20 @@ keys := lo.Keys(map[string]int{"foo": 1, "bar": 2})
 ```
 
 [[play](https://go.dev/play/p/Uu11fHASqrU)]
+
+### HasKey
+
+Returns whether the given key exists.
+
+```go
+exists := lo.HasKey(map[string]int{"foo": 1, "bar": 2}, "foo")
+// true
+
+exists := lo.HasKey(map[string]int{"foo": 1, "bar": 2}, "baz")
+// false
+```
+
+[[play](https://go.dev/play/p/aVwubIvECqS)]
 
 ### Values
 
@@ -2987,6 +3003,38 @@ _, _ = transaction.Process(-5)
 // step 3
 // rollback 2
 // rollback 1
+```
+
+### WaitFor
+
+Runs periodically until a condition is validated.
+
+```go
+alwaysTrue := func(i int) bool { return true }
+alwaysFalse := func(i int) bool { return false }
+laterTrue := func(i int) bool {
+    return i > 5
+}
+
+iterations, duration, ok := lo.WaitFor(alwaysTrue, 10*time.Millisecond, time.Millisecond)
+// 1
+// 0ms
+// true
+
+iterations, duration, ok := lo.WaitFor(alwaysFalse, 10*time.Millisecond, time.Millisecond)
+// 10
+// 10ms
+// false
+
+iterations, duration, ok := lo.WaitFor(laterTrue, 10*time.Millisecond, time.Millisecond)
+// 7
+// 7ms
+// true
+
+iterations, duration, ok := lo.WaitFor(laterTrue, 10*time.Millisecond, 5*time.Millisecond)
+// 2
+// 10ms
+// false
 ```
 
 ### Validate

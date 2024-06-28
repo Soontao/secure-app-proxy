@@ -29,7 +29,7 @@ github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.0
 ## explicit
 github.com/pmezard/go-difflib/difflib
-# github.com/samber/lo v1.42.0
+# github.com/samber/lo v1.43.0
 ## explicit; go 1.18
 github.com/samber/lo
 # github.com/stretchr/testify v1.9.0
