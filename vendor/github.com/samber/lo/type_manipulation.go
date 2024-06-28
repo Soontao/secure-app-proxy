@@ -13,6 +13,11 @@ func ToPtr[T any](x T) *T {
 	return &x
 }
 
+// Nil returns a nil pointer of type.
+func Nil[T any]() *T {
+	return nil
+}
+
 // EmptyableToPtr returns a pointer copy of value if it's nonzero.
 // Otherwise, returns nil pointer.
 func EmptyableToPtr[T any](x T) *T {
@@ -56,8 +61,8 @@ func ToSlicePtr[T any](collection []T) []*T {
 // ToAnySlice returns a slice with all elements mapped to `any` type
 func ToAnySlice[T any](collection []T) []any {
 	result := make([]any, len(collection))
-	for i, item := range collection {
-		result[i] = item
+	for i := range collection {
+		result[i] = collection[i]
 	}
 	return result
 }
@@ -73,8 +78,8 @@ func FromAnySlice[T any](in []any) (out []T, ok bool) {
 	}()
 
 	result := make([]T, len(in))
-	for i, item := range in {
-		result[i] = item.(T)
+	for i := range in {
+		result[i] = in[i].(T)
 	}
 	return result, true
 }
@@ -98,10 +103,10 @@ func IsNotEmpty[T comparable](v T) bool {
 }
 
 // Coalesce returns the first non-empty arguments. Arguments must be comparable.
-func Coalesce[T comparable](v ...T) (result T, ok bool) {
-	for _, e := range v {
-		if e != result {
-			result = e
+func Coalesce[T comparable](values ...T) (result T, ok bool) {
+	for i := range values {
+		if values[i] != result {
+			result = values[i]
 			ok = true
 			return
 		}

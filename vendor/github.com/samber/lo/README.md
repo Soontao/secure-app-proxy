@@ -222,7 +222,12 @@ Supported search helpers:
 - [Max](#max)
 - [MaxBy](#maxby)
 - [Latest](#latest)
+- [First](#first)
+- [FirstOrEmpty](#FirstOrEmpty)
+- [FirstOr](#FirstOr)
 - [Last](#last)
+- [LastOrEmpty](#LastOrEmpty)
+- [LastOr](#LastOr)
 - [Nth](#nth)
 - [Sample](#sample)
 - [Samples](#samples)
@@ -238,6 +243,7 @@ Type manipulation helpers:
 
 - [IsNil](#isnil)
 - [ToPtr](#toptr)
+- [Nil](#nil)
 - [EmptyableToPtr](#emptyabletoptr)
 - [FromPtr](#fromptr)
 - [FromPtrOr](#fromptror)
@@ -1489,7 +1495,7 @@ Unpack is also available as a method of TupleX.
 ```go
 tuple2 := lo.T2("a", 1)
 a, b := tuple2.Unpack()
-// "a" 1
+// "a", 1
 ```
 
 [[play](https://go.dev/play/p/xVP_k0kJ96W)]
@@ -2234,13 +2240,76 @@ latest := lo.Latest([]time.Time{time.Now(), time.Time{}})
 // 2023-04-01 01:02:03 +0000 UTC
 ```
 
+### First
+
+Returns the first element of a collection and check for availability of the first element.
+
+```go
+first, ok := lo.First([]int{1, 2, 3})
+// 1, true
+
+first, ok := lo.First([]int{})
+// 0, false
+```
+
+### FirstOrEmpty
+
+Returns the first element of a collection or zero value if empty.
+
+```go
+first := lo.FirstOrEmpty([]int{1, 2, 3})
+// 1
+
+first := lo.FirstOrEmpty([]int{})
+// 0
+```
+### FirstOr
+
+Returns the first element of a collection or the fallback value if empty.
+
+```go
+first := lo.FirstOr([]int{1, 2, 3}, 245)
+// 1
+
+first := lo.FirstOr([]int{}, 31)
+// 31
+```
+
 ### Last
 
 Returns the last element of a collection or error if empty.
 
 ```go
-last, err := lo.Last([]int{1, 2, 3})
+last, ok := lo.Last([]int{1, 2, 3})
 // 3
+// true
+
+last, ok := lo.Last([]int{})
+// 0
+// false
+```
+
+### LastOrEmpty
+
+Returns the first element of a collection or zero value if empty.
+
+```go
+last := lo.LastOrEmpty([]int{1, 2, 3})
+// 3
+
+last := lo.LastOrEmpty([]int{})
+// 0
+```
+### LastOr
+
+Returns the first element of a collection or the fallback value if empty.
+
+```go
+last := lo.LastOr([]int{1, 2, 3}, 245)
+// 3
+
+last := lo.LastOr([]int{}, 31)
+// 31
 ```
 
 ### Nth
@@ -2441,6 +2510,15 @@ Returns a pointer copy of the value.
 ```go
 ptr := lo.ToPtr("hello world")
 // *string{"hello world"}
+```
+
+### Nil
+
+Returns a nil pointer of type.
+
+```go
+ptr := lo.Nil[float64]()
+// nil
 ```
 
 ### EmptyableToPtr
