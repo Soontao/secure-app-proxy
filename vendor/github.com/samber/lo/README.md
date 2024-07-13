@@ -85,6 +85,7 @@ Supported helpers for slices:
 - [Reduce](#reduce)
 - [ReduceRight](#reduceright)
 - [ForEach](#foreach)
+- [ForEachWhile](#foreachwhile)
 - [Times](#times)
 - [Uniq](#uniq)
 - [UniqBy](#uniqby)
@@ -221,9 +222,11 @@ Supported search helpers:
 - [Min](#min)
 - [MinBy](#minby)
 - [Earliest](#earliest)
+- [EarliestBy](#earliestby)
 - [Max](#max)
 - [MaxBy](#maxby)
 - [Latest](#latest)
+- [LatestBy](#latestby)
 - [First](#first)
 - [FirstOrEmpty](#FirstOrEmpty)
 - [FirstOr](#FirstOr)
@@ -416,6 +419,25 @@ lop.ForEach([]string{"hello", "world"}, func(x string, _ int) {
     println(x)
 })
 // prints "hello\nworld\n" or "world\nhello\n"
+```
+
+### ForEachWhile
+
+Iterates over collection elements and invokes iteratee for each element collection return value decide to continue or break, like do while().
+
+```go
+list := []int64{1, 2, -42, 4}
+
+ForEachWhile(list, func(x int64, _ int) bool {
+    if x < 0 {
+        return false
+    }
+    fmt.Println(x)
+    return true
+})
+
+// 1
+// 2
 ```
 
 ### Times
@@ -2240,6 +2262,23 @@ earliest := lo.Earliest(time.Now(), time.Time{})
 // 0001-01-01 00:00:00 +0000 UTC
 ```
 
+### EarliestBy
+
+Search the minimum time.Time of a collection using the given iteratee function.
+
+Returns zero value when the collection is empty.
+
+```go
+type foo struct {
+    bar time.Time
+}
+
+earliest := lo.EarliestBy([]foo{{time.Now()}, {}}, func(i foo) time.Time {
+    return i.bar
+})
+// {bar:{2023-04-01 01:02:03 +0000 UTC}}
+```
+
 ### Max
 
 Search the maximum value of a collection.
@@ -2286,6 +2325,23 @@ Returns zero value when the collection is empty.
 ```go
 latest := lo.Latest([]time.Time{time.Now(), time.Time{}})
 // 2023-04-01 01:02:03 +0000 UTC
+```
+
+### LatestBy
+
+Search the maximum time.Time of a collection using the given iteratee function.
+
+Returns zero value when the collection is empty.
+
+```go
+type foo struct {
+    bar time.Time
+}
+
+latest := lo.LatestBy([]foo{{time.Now()}, {}}, func(i foo) time.Time {
+    return i.bar
+})
+// {bar:{2023-04-01 01:02:03 +0000 UTC}}
 ```
 
 ### First
