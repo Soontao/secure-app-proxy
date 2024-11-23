@@ -34,9 +34,10 @@ github.com/pmezard/go-difflib/difflib
 github.com/samber/lo
 github.com/samber/lo/internal/constraints
 github.com/samber/lo/internal/rand
-# github.com/stretchr/testify v1.9.0
+# github.com/stretchr/testify v1.10.0
 ## explicit; go 1.17
 github.com/stretchr/testify/assert
+github.com/stretchr/testify/assert/yaml
 # github.com/ulule/limiter/v3 v3.11.2
 ## explicit; go 1.17
 github.com/ulule/limiter/v3
