@@ -9,7 +9,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/sessions v1.4.0
-	github.com/samber/lo v1.49.1
+	github.com/samber/lo v1.50.0
 	github.com/stretchr/testify v1.10.0
 	github.com/ulule/limiter/v3 v3.11.2
 	golang.org/x/oauth2 v0.28.0
