@@ -6,7 +6,7 @@ toolchain go1.24.5
 
 require (
 	github.com/coreos/go-oidc/v3 v3.14.1
-	github.com/golang-jwt/jwt/v5 v5.2.2
+	github.com/golang-jwt/jwt/v5 v5.2.3
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/sessions v1.4.0
 	github.com/samber/lo v1.51.0
