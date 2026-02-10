@@ -2,7 +2,7 @@ module github.com/Soontao/secure-app-proxy
 
 go 1.24.0
 
-toolchain go1.25.7
+toolchain go1.26.0
 
 require (
 	github.com/coreos/go-oidc/v3 v3.17.0
